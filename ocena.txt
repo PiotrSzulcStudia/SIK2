@@ -1,0 +1,21 @@
+
+oddana tylko czesc A,
+
+Część A
+
+0.38/0.40 - ocena wzrokowa i słuchowa działania programu
+Brak jakiegokolwiek komunikatu o błędzie w przypadku nieprawidłowych argumentów
+
+0.92/1.20 - testy automatyczne (plik login.raport)
+
+0.30/0.40 - jakość tekstu źródłowego
+Prawie że jedna wielka funkcja main.
+Czyta zawsze po 1 znaku (co niepotrzebnie zwiększa zużycie czasu przez program).
+Przydałyby się komentarze, np do ifów w głównej pętli opisujące czym zajmują się poszczególne przypadki.
+
+Część B - brak
+
+Integracja: brak
+
+---
+

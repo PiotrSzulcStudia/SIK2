@@ -1,0 +1,219 @@
+Opis testów:
+  - próba uruchomienia programu z za małą liczbą parametetrów lub niepoprawnymi
+    wartościami parametrów, np. numer portu za duży itp. (10% oceny)
+    testy 101 do 120 – zła liczba parametrów lub niepoprawna wartość parametru
+  - próba nawiązania połączenia z nieistniejącym serwerem, nieotwartym portem
+    serwera, nieistniejącym zasobem na serwerze, serwerem innej usługi, źle
+    działającym serwerem (20% oceny)
+    test 201 – nieistniejący URL
+    test 202 – połączenie z serwerem HTTP, a nie ICY
+    test 203 – poprawny URL i port, ale nieistniejący zasób
+    test 204 – poprawny URL, ale niepoprawny port
+    test 205 – połączenie na nieotwarty port na localhost
+    test 206 – poprawny nagłówek ICY, ale brak danych audio
+    test 207 – serwer radia nie odsyła nagłówka
+    test 208 – metadane nie są oczekiwane, a serwer radia je chce przysyłać
+    test 209 – serwer radia nie przysyła całego nagłówka, brak CR LF CR LF
+    test 210 – nagłówek ICY zawiera LF zamiast CR LF
+  - nawiązanie połączenia z naszym serwerem uruchomionym na localhost
+    i wysyłającym (czasem w sposób złośliwy) przygotowane, spreparowane pliki,
+    porównanie, czy plik zapisany przez program jest identyczny z tym wysłanym
+    (30% oceny)
+    test 301 – player nie żąda metadanych, serwer radia nie wysyła metadanych,
+               wysyła dane audio jak najszybciej
+    test 302 – player nie żąda metadanych, serwer radia nie wysyła metadanych,
+               wysyła dane audio małymi porcjami
+    test 303 – player żąda metadanych, serwer radia nie wysyła metadanych,
+               wysyła dane audio jak najszybciej
+    test 304 – player żąda metadanych, serwer radia wysyła krótkie metadane,
+               wysyła dane audio małymi porcjami.
+    test 305 – player żąda metadanych, serwer radia wysyła długie metadane,
+               wysyła dane audio małymi porcjami
+
+== Sprawdzanie rozwiązania studenta ps347277 ==
+
+=== Kompilowanie programów studenta ps347277 === 
+gcc -Wall -O2   -c -o player.o player.c
+gcc -Wall -O2   -c -o err.o err.c
+gcc   player.o err.o   -o player
+
+=== Sprawdzanie programu player studenta ps347277 === 
+TEST 101
+./player 
+TEST 101 PASS
+
+TEST 102
+./player stream3.polskieradio.pl
+TEST 102 PASS
+
+TEST 103
+./player stream3.polskieradio.pl /
+TEST 103 PASS
+
+TEST 104
+./player stream3.polskieradio.pl / 8904 testf104.mp3
+TEST 104 PASS
+
+TEST 105
+./player stream3.polskieradio.pl / 8904 testf105.mp3 45229
+TEST 105 PASS
+
+TEST 106
+./player stream3.polskieradio.pl / 8904 testf106.mp3 45230 yes x
+TEST 106 PASS
+
+TEST 107
+./player stream3.polskieradio.pl / "" testf107.mp3 45231 no
+TEST 107 PASS
+
+TEST 108
+./player stream3.polskieradio.pl / abc testf108.mp3 45232 no
+TEST 108 PASS
+
+TEST 109
+./player stream3.polskieradio.pl / 9999d testf109.mp3 45233 no
+TEST 109 PASS
+
+TEST 110
+./player stream3.polskieradio.pl / -1 testf110.mp3 45234 no
+TEST 110 PASS
+
+TEST 111
+./player stream3.polskieradio.pl / 65536 testf111.mp3 45235 no
+TEST 111 FAIL (program nie zakończył się w wymaganym czasie)
+
+TEST 112
+./player stream3.polskieradio.pl / 115534 testf112.mp3 45236 no
+TEST 112 FAIL (program nie zakończył się w wymaganym czasie)
+
+TEST 113
+./player stream3.polskieradio.pl / 8904 testf113.mp3 "" no
+TEST 113 PASS
+
+TEST 114
+./player stream3.polskieradio.pl / 8904 testf114.mp3 abc no
+TEST 114 PASS
+
+TEST 115
+./player stream3.polskieradio.pl / 8904 testf115.mp3 9999d no
+TEST 115 PASS
+
+TEST 116
+./player stream3.polskieradio.pl / 8904 testf116.mp3 -1 no
+TEST 116 PASS
+
+TEST 117
+./player stream3.polskieradio.pl / 8904 testf117.mp3 65536 no
+TEST 117 FAIL (program nie zakończył się w wymaganym czasie)
+
+TEST 118
+./player stream3.polskieradio.pl / 8904 testf118.mp3 115534 no
+TEST 118 FAIL (program nie zakończył się w wymaganym czasie)
+
+TEST 119
+./player stream3.polskieradio.pl / 8904 testf119.mp3 45243 ""
+TEST 119 PASS
+
+TEST 120
+./player stream3.polskieradio.pl / 8904 testf120.mp3 45244 non
+TEST 120 PASS
+
+TEST 201
+./player adklsdjal.pl / 8080 testf201.mp3 45245 no
+ERROR: getaddrinfo: No address associated with hostname
+TEST 201 PASS
+
+TEST 202
+./player www.mimuw.edu.pl / 80 testf202.mp3 45246 no
+TEST 202 FAIL (return code 0)
+
+TEST 203
+./player stream3.polskieradio.pl /abc 8904 testf203.mp3 45247 no
+TEST 203 FAIL (return code 0)
+
+TEST 204
+./player stream3.polskieradio.pl / 7777 testf204.mp3 45249 no
+ERROR: connect (110; Connection timed out)
+TEST 204 PASS
+
+TEST 205
+./player 127.0.0.1 / 54835 testf205.mp3 45250 no
+ERROR: connect (111; Connection refused)
+TEST 205 PASS
+
+TEST 206
+cat test-206.txt | nc -q 10 -l 54836
+[1] 45180 45181
+./player 127.0.0.1 / 54836 testf206.mp3 45251 no
+timeout[1]  + Done                          cat test-206.txt | nc -q 10 -l 54836 > /dev/null
+TEST 206 PASS
+
+TEST 207
+cat test-207.txt | nc -l 54837
+[1] 45265 45266
+./player 127.0.0.1 / 54837 testf207.mp3 45252 no
+[1]  + Done                          cat test-207.txt | nc -l 54837 > /dev/null
+TEST 207 FAIL (return code 0)
+
+TEST 208
+cat test-208.txt | nc -l 54838
+[1] 45312 45313
+./player 127.0.0.1 / 54838 testf208.mp3 45253 no
+[1]  + Done                          cat test-208.txt | nc -l 54838 > /dev/null
+TEST 208 FAIL (return code 0)
+
+TEST 209
+cat test-209.txt | nc -l 54839
+[1] 45361 45362
+./player 127.0.0.1 / 54839 testf209.mp3 45254 no
+[1]  + Done                          cat test-209.txt | nc -l 54839 > /dev/null
+TEST 209 FAIL (return code 0)
+
+TEST 210
+cat test-210.txt | nc -l 54840
+[1] 45414 45415
+./player 127.0.0.1 / 54840 testf210.mp3 45255 no
+[1]  + Done                          cat test-210.txt | nc -l 54840 > /dev/null
+TEST 210 FAIL (return code 0)
+
+TEST 301
+./test-radio 127.0.0.1 / 54841 testf301.mp3 45256 no 301
+[1] 45520
+./player 127.0.0.1 / 54841 testf301.mp3 45256 no
+[1]  + Done                          ./test-radio 127.0.0.1 / 54841 testf301.mp3 45256 no 301
+TEST 301 PASS
+
+TEST 302
+./test-radio 127.0.0.1 / 54842 testf302.mp3 45257 no 302
+[1] 45731
+./player 127.0.0.1 / 54842 testf302.mp3 45257 no
+[1]  + Done                          ./test-radio 127.0.0.1 / 54842 testf302.mp3 45257 no 302
+TEST 302 PASS
+
+TEST 303
+./test-radio 127.0.0.1 / 54843 testf303.mp3 45258 yes 303
+[1] 48907
+./player 127.0.0.1 / 54843 testf303.mp3 45258 yes
+[1]  + Done                          ./test-radio 127.0.0.1 / 54843 testf303.mp3 45258 yes 303
+TEST 303 PASS
+
+TEST 304
+./test-radio 127.0.0.1 / 54844 testf304.mp3 45259 yes 304
+[1] 3170
+./player 127.0.0.1 / 54844 testf304.mp3 45259 yes
+[1]  + Done                          ./test-radio 127.0.0.1 / 54844 testf304.mp3 45259 yes 304
+TEST 304 PASS
+
+TEST 305
+./test-radio 127.0.0.1 / 54845 testf305.mp3 45260 yes 305
+[1] 31122
+./player 127.0.0.1 / 54845 testf305.mp3 45260 yes
+[1]  + Done                          ./test-radio 127.0.0.1 / 54845 testf305.mp3 45260 yes 305
+TEST 305 PASS
+
+OCENA = 2 * (0.1 * 16/20 + 0.2 * 4/10 + 0.3 * 5/5) = .92000000000000000000
+
+=== Sprawdzanie programu master studenta ps347277 === 
+Nie znaleziono wykonywalnego pliku master.
+OCENA = 3 * (0.1 * 0/10 + 0.1 * 0/3) = 0
+
